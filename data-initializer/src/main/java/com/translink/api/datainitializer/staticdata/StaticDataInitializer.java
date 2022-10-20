@@ -89,6 +89,7 @@ public class StaticDataInitializer implements HealthIndicator {
         if(!refreshData) {
             log.info("Skip refreshing database {}", mongoHost);
 
+            isAppUp = true;
             return;
         }
 

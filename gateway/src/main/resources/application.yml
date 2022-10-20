@@ -9,6 +9,9 @@ spring:
           allowedHeaders: "*"
           allowedMethods:
             - GET
+            - POST
+            - PUT
+            - DELETE
     gateway:
       discovery:
         locator:

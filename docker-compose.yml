@@ -51,6 +51,7 @@ services:
       EUREKA_URL: http://discovery:8761
       MONGO_HOST: mongodb
       MONGO_PORT: 27017
+      REFRESH_DATA: false
     networks:
       - app-network
     volumes:
@@ -79,7 +80,7 @@ services:
       - app-network
   gtfs-service:
     deploy:
-      replicas: 3
+      replicas: 5
       placement:
         max_replicas_per_node: 1
       update_config:

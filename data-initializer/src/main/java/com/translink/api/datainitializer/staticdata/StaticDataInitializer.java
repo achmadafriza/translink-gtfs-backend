@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -106,7 +107,7 @@ public class StaticDataInitializer implements HealthIndicator {
             Map<String, List<Shape>> shapeMap = new HashMap<>();
 
             DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-            try(Reader reader = new FileReader(calendarData.getFile())) {
+            try(Reader reader = new InputStreamReader(calendarData.getInputStream())) {
                 for(CSVRecord csvRecord : csvFormat.parse(reader)) {
                     Calendar calendar = Calendar.builder()
                             .days(new HashSet<>())
@@ -125,7 +126,7 @@ public class StaticDataInitializer implements HealthIndicator {
             }
             log.info(COMPLETED_READING_COUNT, calendarData.getFilename(), calendarMap.keySet().size());
 
-            try(Reader reader = new FileReader(datesData.getFile())) {
+            try(Reader reader = new InputStreamReader(datesData.getInputStream())) {
                 for(CSVRecord csvRecord : csvFormat.parse(reader)) {
                     CalendarException exceptions = CalendarException.builder()
                             .date(LocalDate.parse(csvRecord.get(1), dateFormatter))
@@ -143,7 +144,7 @@ public class StaticDataInitializer implements HealthIndicator {
             }
             log.info(COMPLETED_READING_COUNT, datesData.getFilename(), exceptionsMap.keySet().size());
 
-            try(Reader reader = new FileReader(shapeData.getFile())) {
+            try(Reader reader = new InputStreamReader(shapeData.getInputStream())) {
                 for(CSVRecord csvRecord : csvFormat.parse(reader)) {
                     Shape shape = Shape.builder()
                             .id(new ObjectId().toString())
@@ -161,7 +162,7 @@ public class StaticDataInitializer implements HealthIndicator {
             }
 
             Map<String, Route> routeMap = new HashMap<>();
-            try(Reader reader = new FileReader(routeData.getFile())) {
+            try(Reader reader = new InputStreamReader(routeData.getInputStream())) {
                 for(CSVRecord csvRecord : csvFormat.parse(reader)) {
                     Route route = Route.builder()
                             .id(csvRecord.get(0))
@@ -185,7 +186,7 @@ public class StaticDataInitializer implements HealthIndicator {
             log.info(COMPLETED_READING_COUNT, routeData.getFilename(), routeMap.keySet().size());
 
             Map<String, Trip> tripMap = new HashMap<>();
-            try(Reader reader = new FileReader(tripData.getFile())) {
+            try(Reader reader = new InputStreamReader(tripData.getInputStream())) {
                 for(CSVRecord csvRecord : csvFormat.parse(reader)) {
                     Trip trip = Trip.builder()
                             .id(csvRecord.get(2))
@@ -209,7 +210,7 @@ public class StaticDataInitializer implements HealthIndicator {
             log.info(COMPLETED_READING_COUNT, tripData.getFilename(), tripMap.keySet().size());
 
             Map<String, Stop> stopMap = new HashMap<>();
-            try(Reader reader = new FileReader(stopData.getFile())) {
+            try(Reader reader = new InputStreamReader(stopData.getInputStream())) {
                 for(CSVRecord csvRecord : csvFormat.parse(reader)) {
                     Stop stop = Stop.builder()
                             .id(csvRecord.get(0))
@@ -251,7 +252,7 @@ public class StaticDataInitializer implements HealthIndicator {
 
             DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
             List<StopTime> stopTimes = new ArrayList<>();
-            try(Reader reader = new FileReader(stopTimeData.getFile())) {
+            try(Reader reader = new InputStreamReader(stopTimeData.getInputStream())) {
                 for(CSVRecord csvRecord : csvFormat.parse(reader)) {
                     StopTime stopTime = StopTime.builder()
                             .id(new ObjectId().toString())

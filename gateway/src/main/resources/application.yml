@@ -21,7 +21,7 @@ spring:
             - Path=/**
 
 server:
-  port: 8080
+  port: ${PORT:8080}
 eureka:
   client:
     registerWithEureka: true

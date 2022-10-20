@@ -17,6 +17,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.util.Arrays;
@@ -71,7 +72,7 @@ public class PlacesInitializer {
         landmarkRepository.deleteAll();
 
         Map stopMap;
-        try(Reader reader = Files.newBufferedReader(stops.getFile().toPath())) {
+        try(Reader reader = new InputStreamReader(stops.getInputStream())) {
             stopMap = gson.fromJson(reader, Map.class);
         } catch(IOException e) {
             log.error("File cannot be read", e);

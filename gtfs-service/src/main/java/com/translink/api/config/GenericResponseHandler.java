@@ -2,6 +2,7 @@ package com.translink.api.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.translink.api.config.format.DepthSerializable;
+import com.translink.api.config.model.GenericResponse;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,6 +14,7 @@ import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
+import java.net.InetAddress;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -41,10 +43,14 @@ public class GenericResponseHandler implements ResponseBodyAdvice {
             return body;
         }
 
+        Object responseBody = body;
         if(body instanceof DepthSerializable) {
-            return ((DepthSerializable) body).toJson(maxDepth, mapper, body.getClass());
+            responseBody = ((DepthSerializable) body).toJson(maxDepth, mapper, body.getClass());
         }
 
-        return body;
+        return GenericResponse.builder()
+                .hostname(InetAddress.getLocalHost().getHostName())
+                .response(responseBody)
+                .build();
     }
 }

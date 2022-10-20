@@ -1,0 +1,111 @@
+version: "3.9"
+services:
+  mongodb:
+    container_name: mongodb
+    image: mongo:latest
+    env_file:
+      - .env
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+    networks:
+      - app-network
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+  discovery:
+    container_name: discovery
+    build: ./discovery/
+    restart: "always"
+    networks:
+      - app-network
+    volumes:
+      - discovery-log:/home/log
+    ports:
+      - "8761:8761"
+  gateway:
+    container_name: gateway
+    build: ./gateway/
+    restart: "always"
+    environment:
+      EUREKA_URL: http://discovery:8761
+    depends_on:
+      - discovery
+    networks:
+      - app-network
+    volumes:
+      - gateway-log:/home/log
+    ports:
+      - "8080:8080"
+  data-initializer:
+    build: ./data-initializer/
+    restart: "no"
+    depends_on:
+      - discovery
+      - mongodb
+    env_file:
+      - .env
+    environment:
+      EUREKA_URL: http://discovery:8761
+      MONGO_HOST: mongodb
+      MONGO_PORT: 27017
+    networks:
+      - app-network
+    volumes:
+      - initializer-log:/home/log
+  worker:
+    deploy:
+      replicas: 3
+      placement:
+        max_replicas_per_node: 1
+      update_config:
+        parallelism: 1
+        delay: 20s
+      restart_policy:
+        condition: on-failure
+    build: ./worker/
+    depends_on:
+      data-initializer:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      EUREKA_URL: http://discovery:8761
+      MONGO_HOST: mongodb
+      MONGO_PORT: 27017
+    networks:
+      - app-network
+  gtfs-service:
+    deploy:
+      replicas: 3
+      placement:
+        max_replicas_per_node: 1
+      update_config:
+        parallelism: 1
+        delay: 20s
+      restart_policy:
+        condition: on-failure
+    build: ./gtfs-service/
+    depends_on:
+      data-initializer:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      EUREKA_URL: http://discovery:8761
+      MONGO_HOST: mongodb
+      MONGO_PORT: 27017
+    networks:
+      - app-network
+
+volumes:
+  mongo-data:
+  discovery-log:
+  gateway-log:
+  initializer-log:
+
+networks:
+  app-network:
+    driver: bridge

@@ -7,37 +7,17 @@ This project uses:
 The live implementation can be seen via [Postman](https://www.postman.com/maccas-bbq-sauce/workspace/deco3801-maccas-sticky-hot-bbq-sauce).
 
 For running the application you need to have this list of dependencies:
-1. Java 1.8
-2. Gradle 7.5
-2. MongoDB 6.0.1
+1. Docker
 3. Google Maps Places API
 4. Translink GTFS Realtime API
 
 This application uses this list of environment variables to configure it's runtime:
-- `MONGO_HOST` to specify MongoDB host.
-- `MONGO_PORT` to specify MongoDB port.
-- `MONGO_USER` to specify MongoDB user.
-- `MONGO_PASSWORD` to specify MongoDB password.
 - `MAPS_KEY` to specify Google Maps API key.
 
-To run the application:
-1. Build the fat jar.
-```
-./gradlew clean assemble
-```
+To run the application locally:
+1. Build the application using `docker compose build`
+2. Run the application using `docker compose up -d`.
+ 
+Note: data-initializer uses some clever trick to tell docker compose when it is done initializing the data using healthcheck. You need to wait for a couple of minutes.
 
-2. Copy the `./resources` file into the JAR folder.
-
-2. Run the jar.
-```
-java -Dlog4j2.contextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector -jar ./build/libs/api-0.0.1-SNAPSHOT.jar
-```
-
-You can specify this list of program arguments to modify the runtime:
-- `--refresh-data.static=true` to rebuild the static database from scratch.
-- `--refresh-data.places=true` to rebuild the landmark database from scratch.
-- `--batch-size` to specify the batch size on rebuilding the database.
-- `--execute-scheduler=true` to run the job scheduler.
-- `--service.gtfs.scheduler.interval=5` to set the job interval (in minutes).
-
-You can see more of this by modifying `application.properties`.
+You can see the list of running services by going to `http://localhost:8761`.

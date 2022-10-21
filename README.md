@@ -17,6 +17,10 @@ This application uses this list of environment variables to configure it's runti
 To run the application locally:
 1. Build the application using `docker compose build`
 2. Run the application using `docker compose up -d`.
+
+To run the application on a swarm:
+1. `docker swarm init`
+2. `docker stack deploy -c docker-compose translink-gtfs`
  
 Note: data-initializer uses some clever trick to tell docker compose when it is done initializing the data using healthcheck. You need to wait for a couple of minutes.
 

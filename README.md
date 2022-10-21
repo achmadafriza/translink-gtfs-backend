@@ -1,3 +1,21 @@
+# QLD Bus Explorer
+
+## Running the App
+
+### Frontend
+
+1. **Install** the dependencies to run Flutter on your machine [https://docs.flutter.dev/get-started/install](https://docs.flutter.dev/get-started/install)
+
+2. Clone the **main** branch of the frontend repo at [https://github.com/Maccas-Sticky-Hot-BBQ-Sauce/maccas-hot-bbq-sauce-frontend.git](https://github.com/Maccas-Sticky-Hot-BBQ-Sauce/maccas-hot-bbq-sauce-frontend.git)
+
+3. Run the Flutter app through your IDE or run `flutter run` or `flutter run -d web-server` on your terminal and choose **web** as the platform choice.
+
+4. You may adjust the `stopId` url query of the website to switch between stops.
+
+   ```http://localhost:####?stopId=94```
+
+5. Currently the list of bus stops with landmarks available to be explored are: 10780, 10781, 10785, 10786, 10787, 10788, 10789, 10790, 10791, 19052, 19064, and 94.
+
 ### Backend
 
 This project uses:

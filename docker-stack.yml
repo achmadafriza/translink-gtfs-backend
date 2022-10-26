@@ -1,8 +1,16 @@
 version: "3.9"
 services:
   mongodb:
-    container_name: mongodb
     image: mongo:latest
+    deploy:
+      replicas: 1
+      placement:
+        max_replicas_per_node: 1
+      update_config:
+        parallelism: 1
+        delay: 20s
+      restart_policy:
+        condition: on-failure
     env_file:
       - .env
     environment:
@@ -16,9 +24,16 @@ services:
     volumes:
       - mongo-data:/data/db
   discovery:
-    container_name: discovery
-    build: ./discovery/
-    restart: "always"
+    image: 'translink-gtfs-backend-discovery:latest'
+    deploy:
+      replicas: 1
+      placement:
+        max_replicas_per_node: 1
+      update_config:
+        parallelism: 1
+        delay: 20s
+      restart_policy:
+        condition: on-failure
     networks:
       - app-network
     volumes:
@@ -26,9 +41,16 @@ services:
     ports:
       - "8761:8761"
   gateway:
-    container_name: gateway
-    build: ./gateway/
-    restart: "always"
+    image: 'translink-gtfs-backend-gateway:latest'
+    deploy:
+      replicas: 1
+      placement:
+        max_replicas_per_node: 1
+      update_config:
+        parallelism: 1
+        delay: 20s
+      restart_policy:
+        condition: on-failure
     environment:
       EUREKA_URL: http://discovery:8761
     depends_on:
@@ -40,8 +62,16 @@ services:
     ports:
       - "8080:8080"
   data-initializer:
-    build: ./data-initializer/
-    restart: "no"
+    image: 'translink-gtfs-backend-data-initializer:latest'
+    deploy:
+      replicas: 1
+      placement:
+        max_replicas_per_node: 1
+      update_config:
+        parallelism: 1
+        delay: 20s
+      restart_policy:
+        condition: none
     depends_on:
       - discovery
       - mongodb
@@ -51,25 +81,26 @@ services:
       EUREKA_URL: http://discovery:8761
       MONGO_HOST: mongodb
       MONGO_PORT: 27017
-      REFRESH_DATA: true
+      REFRESH_DATA: "true"
     networks:
       - app-network
     volumes:
       - initializer-log:/home/log
   worker:
     deploy:
-      replicas: 3
+      replicas: 2
       placement:
-        max_replicas_per_node: 1
+        max_replicas_per_node: 2
       update_config:
         parallelism: 1
         delay: 20s
       restart_policy:
         condition: on-failure
-    build: ./worker/
+        delay: 20s
+    image: 'translink-gtfs-backend-worker:latest'
     depends_on:
-      data-initializer:
-        condition: service_healthy
+      - discovery
+      - mongodb
     env_file:
       - .env
     environment:
@@ -80,18 +111,19 @@ services:
       - app-network
   gtfs-service:
     deploy:
-      replicas: 3
+      replicas: 4
       placement:
-        max_replicas_per_node: 1
+        max_replicas_per_node: 2
       update_config:
         parallelism: 1
         delay: 20s
       restart_policy:
         condition: on-failure
-    build: ./gtfs-service/
+        delay: 20s
+    image: 'translink-gtfs-backend-gtfs-service:latest'
     depends_on:
-      data-initializer:
-        condition: service_healthy
+      - discovery
+      - mongodb
     env_file:
       - .env
     environment:
@@ -109,4 +141,5 @@ volumes:
 
 networks:
   app-network:
-    driver: bridge
+      name: app-network
+      external: true
